@@ -1,0 +1,1 @@
+ALTER TABLE `stock` ADD `category` text DEFAULT 'raw' NOT NULL;

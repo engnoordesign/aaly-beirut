@@ -1,0 +1,10 @@
+import {backup} from 'node:sqlite';
+import {mkdirSync,cpSync,existsSync,writeFileSync} from 'node:fs';
+import path from 'node:path';
+import {database,dataDir} from '../runtime/storage.mjs';
+if(!process.argv.includes('--app-stopped'))throw new Error('Stop the app first, then pass --app-stopped to keep database and uploaded files consistent.');
+const folder=path.join(dataDir,'backups',new Date().toISOString().replaceAll(':','-'));
+mkdirSync(folder,{recursive:true,mode:0o700});await backup(database(),path.join(folder,'aaly.sqlite'));
+if(existsSync(path.join(dataDir,'uploads')))cpSync(path.join(dataDir,'uploads'),path.join(folder,'uploads'),{recursive:true});
+writeFileSync(path.join(folder,'backup.json'),JSON.stringify({created:new Date().toISOString(),format:1,includes:['database','uploads','password hashes','sessions']},null,2),{mode:0o600});
+console.log(folder);
